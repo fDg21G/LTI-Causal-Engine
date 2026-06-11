@@ -1,6 +1,6 @@
 """
 Latent Transportable Interventions (LTI) Engine v5
-Parameter-Free One-Shot Causal Direction Discovery
+Training-Data-Free One-Shot Causal Direction Discovery
 """
 import numpy as np
 
@@ -33,15 +33,25 @@ def causal_score(cause, effect):
     return best
 
 def resolve_causal_tie(cause_candidate, effect_candidate):
+    """Computes Phase-Space Hysteresis Area using the Shoelace formula."""
     X = np.array(cause_candidate, dtype=float)
     Y = np.array(effect_candidate, dtype=float)
     X_norm = (X - np.min(X)) / (np.max(X) - np.min(X) + 1e-9)
     Y_norm = (Y - np.min(Y)) / (np.max(Y) - np.min(Y) + 1e-9)
     
+    # FIX: Mean-centering to stabilize the orbit and avoid closing-edge artifacts
+    X_val = X_norm - np.mean(X_norm)
+    Y_val = Y_norm - np.mean(Y_norm)
+    
     area = 0.0
-    for i in range(len(X_norm) - 1):
-        area += (X_norm[i] * Y_norm[i+1]) - (X_norm[i+1] * Y_norm[i])
-    return area
+    # Shoelace Formula for signed area
+    for i in range(len(X_val) - 1):
+        area += (X_val[i] * Y_val[i+1]) - (X_val[i+1] * Y_val[i])
+        
+    # FIX: Explicitly close the loop to prevent artificial boundaries
+    area += (X_val[-1] * Y_val[0]) - (X_val[0] * Y_val[-1])
+    
+    return 0.5 * area
 
 def robust_causal_direction(name_a, series_a, name_b, series_b):
     s_ab = causal_score(series_a, series_b)
@@ -58,4 +68,4 @@ def robust_causal_direction(name_a, series_a, name_b, series_b):
         if s_ab > s_ba:
             return f"{name_a} -> {name_b}", delta, "Derivative Correlation"
         else:
-            return f"{name_b} -> {name_a}", delta, "Derivative Correlation" 
+            return f"{name_b} -> {name_a}", delta, "Derivative Correlation"
