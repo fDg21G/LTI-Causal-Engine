@@ -5,7 +5,7 @@ from scipy.signal import savgol_filter
 import sys
 import os
 
-# السماح للسكربت بقراءة المحرك من مجلد src
+# Allow script to read the engine from the src folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.lti_engine import robust_causal_direction
 
@@ -20,7 +20,7 @@ try:
     print("Fetching data from FRED API...")
     df = web.DataReader(['FEDFUNDS', 'UNRATE'], 'fred', start, end).dropna()
     
-    # تنعيم البيانات باستخدام فلتر Savitzky-Golay
+    # Smoothing data using Savitzky-Golay filter
     fed_smooth = savgol_filter(df['FEDFUNDS'].values, window_length=11, polyorder=2)
     unrate_smooth = savgol_filter(df['UNRATE'].values, window_length=11, polyorder=2)
     
