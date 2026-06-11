@@ -22,3 +22,15 @@ The LTI framework operates through a robust, two-layer deterministic pipeline:
 The engine is computationally lightweight ($O(T)$ complexity) and designed for Edge AI deployment.
 ```bash
 pip install numpy scipy pandas statsmodels
+Usage
+Python
+from src.lti_engine_v5_final import robust_causal_direction
+
+# Discover causal direction from one-shot bivariate data
+direction, confidence, method = robust_causal_direction(
+    "Variable_A", series_a, 
+    "Variable_B", series_b
+)
+print(f"Causal Direction: {direction} | Resolved via: {method}")
+👨‍💻 Author
+Houssam Rharbi Independent Researcher & AI Systems Engineer Casablanca, Morocco
